@@ -33,3 +33,9 @@ func TestDeepEquals(t *testing.T) {
 	ok, _ = a.DeepEquals([]int{1, 2, 3}, []int{1, 2, 3})
 	a.Check(t, ok, a.IsTrue)
 }
+
+func TestSimple(t *testing.T) {
+	a.Check(t, true, a.IsTrue)
+	a.Check(t, false, a.IsFalse)
+	a.Check(t, nil, a.IsNil)
+}

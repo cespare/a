@@ -5,32 +5,40 @@ import (
 	"reflect"
 )
 
-var (
-	DeepEquals = CheckerFunc(deepEquals)
-	Equals     = CheckerFunc(equals)
-	IsTrue     = CheckerFunc(istrue)
-	IsFalse    = CheckerFunc(isfalse)
-	IsNil      = CheckerFunc(isnil)
-)
+// Slices:
+// - Contains (slice contains values)
+// Maps:
+// - Contains (contains key/val pairs)
+// - ContainsKeys (map contains keys)
+// Numeric
+// - Lt
+// - Leq
+// - Gt
+// - Geq
+// - Approx (n within 0.1% of x)
+// - ApproxDelta (n equal to x +/- d)
+// Strings
+// - Contains (s contains substring)
+// - Matches (s matches regex)
 
-func deepEquals(args ...interface{}) (ok bool, message string) {
-	params, msg, err := expectNArgs(2, "DeepEquals", args)
-	if err != nil {
-		return false, err.Error()
+func DeepEquals(args ...interface{}) (ok bool, message string) {
+	params, msg, err := expectNArgs(2, args)
+	if err != "" {
+		return false, err
 	}
 	if reflect.DeepEqual(params[0], params[1]) {
 		return true, ""
 	}
 	if msg == "" {
-		return false, fmt.Sprintf("a.DeepEquals: expected %#v, but got %#v", params[1], params[0])
+		return false, fnPrefix("expected %#v, but got %#v", params[1], params[0])
 	}
 	return false, msg
 }
 
-func equals(args ...interface{}) (ok bool, message string) {
-	params, msg, err := expectNArgs(2, "Equals", args)
-	if err != nil {
-		return false, err.Error()
+func Equals(args ...interface{}) (ok bool, message string) {
+	params, msg, err := expectNArgs(2, args)
+	if err != "" {
+		return false, err
 	}
 	defer func() {
 		if err := recover(); err != nil {
@@ -42,15 +50,15 @@ func equals(args ...interface{}) (ok bool, message string) {
 		return true, ""
 	}
 	if msg == "" {
-		return false, fmt.Sprintf("a.Equals: expected %#v, but got %#v", params[1], params[0])
+		return false, fnPrefix("expected %#v, but got %#v", params[1], params[0])
 	}
 	return false, msg
 }
 
-func istrue(args ...interface{}) (ok bool, message string) {
-	params, msg, err := expectNArgs(1, "IsTrue", args)
-	if err != nil {
-		return false, err.Error()
+func IsTrue(args ...interface{}) (ok bool, message string) {
+	params, msg, err := expectNArgs(1, args)
+	if err != "" {
+		return false, err
 	}
 	defer func() {
 		if err := recover(); err != nil {
@@ -62,15 +70,15 @@ func istrue(args ...interface{}) (ok bool, message string) {
 		return true, ""
 	}
 	if msg == "" {
-		return false, fmt.Sprintf("a.IsTrue: expected true, but got %#v", params[0])
+		return false, fnPrefix("expected true, but got %#v", params[0])
 	}
 	return false, msg
 }
 
-func isfalse(args ...interface{}) (ok bool, message string) {
-	params, msg, err := expectNArgs(1, "IsFalse", args)
-	if err != nil {
-		return false, err.Error()
+func IsFalse(args ...interface{}) (ok bool, message string) {
+	params, msg, err := expectNArgs(1, args)
+	if err != "" {
+		return false, err
 	}
 	defer func() {
 		if err := recover(); err != nil {
@@ -82,15 +90,15 @@ func isfalse(args ...interface{}) (ok bool, message string) {
 		return true, ""
 	}
 	if msg == "" {
-		return false, fmt.Sprintf("a.IsFalse: expected false, but got %#v", params[0])
+		return false, fnPrefix("expected false, but got %#v", params[0])
 	}
 	return false, msg
 }
 
-func isnil(args ...interface{}) (ok bool, message string) {
-	params, msg, err := expectNArgs(1, "IsNil", args)
-	if err != nil {
-		return false, err.Error()
+func IsNil(args ...interface{}) (ok bool, message string) {
+	params, msg, err := expectNArgs(1, args)
+	if err != "" {
+		return false, err
 	}
 	defer func() {
 		if err := recover(); err != nil {
@@ -102,7 +110,7 @@ func isnil(args ...interface{}) (ok bool, message string) {
 		return true, ""
 	}
 	if msg == "" {
-		return false, fmt.Sprintf("a.IsNil: expected nil, but got %#v", params[0])
+		return false, fnPrefix("expected nil, but got %#v", params[0])
 	}
 	return false, msg
 }
