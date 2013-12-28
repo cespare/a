@@ -1,4 +1,31 @@
 // Package a provides some simple assertions for tests using package testing.
+//
+// Assertions are used in tests like this:
+//
+//     a.Assert(t, foo, a.Equals, 5)
+//
+// where t is a *testing.T. Check may be substituted for Assert if the test should continue on failure. An
+// error message about expected vs. got will be automatically generated, but a custom error message may be
+// provided instead:
+//
+//     a.Check(t, bar, a.IsNil, "bar was expected to be nil")
+//
+// A Checker function is always the third argument to Check or Assert; the value under test is always the
+// second. Subsequent arguments to the checker (if any) are in the fourth and later positions. The last
+// argument is always the optional error message.
+//
+// A custom checker may be created by simply making a CheckerFunc (or a function with the same signature). The
+// checker is called by passing in the Assert/Check arguments, starting with the value under test, then any
+// further arguments, and finally the message if provided. The checker returns a boolean indicating
+// success/failure and an error message to display. For example, in this statement:
+//
+//     a.Assert(t, foo, a.Equals, "hello world", "custom message")
+//
+// the Equals checker is called like this:
+//
+//     Equals(foo, "hello world", "custom message")
+//
+// Most checkers do not have specific documentation because their names fully describe their behavior.
 package a
 
 import (
@@ -10,18 +37,23 @@ import (
 	"unicode"
 )
 
+// Assert runs a check and aborts the test (calling t.Fatal) if it fails.
 func Assert(t *testing.T, args ...interface{}) {
 	if ok, message := assert("Assert", args...); !ok {
 		t.Fatal(message)
 	}
 }
 
+// Check runs a check and registers an error (calling t.Error) if it fails.
 func Check(t *testing.T, args ...interface{}) {
 	if ok, message := assert("Check", args...); !ok {
 		t.Error(message)
 	}
 }
 
+// A CheckerFunc is a function that runs a check. It is provided with one or more checker arguments and the
+// custom error message, if provided. It returns a bool to indicate if the check succeeded and an error
+// message to display.
 type CheckerFunc func(args ...interface{}) (ok bool, message string)
 
 func assert(fn string, args ...interface{}) (ok bool, message string) {

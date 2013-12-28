@@ -21,6 +21,8 @@ import (
 // - Contains (s contains substring)
 // - Matches (s matches regex)
 
+
+// DeepEquals is a checker which compares two values using reflect.DeepEquals.
 func DeepEquals(args ...interface{}) (ok bool, message string) {
 	params, msg, err := expectNArgs(2, args)
 	if err != "" {
