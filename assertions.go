@@ -21,7 +21,6 @@ import (
 // - Contains (s contains substring)
 // - Matches (s matches regex)
 
-
 // DeepEquals is a checker which compares two values using reflect.DeepEquals.
 func DeepEquals(args ...interface{}) (ok bool, message string) {
 	params, msg, err := expectNArgs(2, args)
@@ -111,8 +110,29 @@ func IsNil(args ...interface{}) (ok bool, message string) {
 	if params[0] == nil {
 		return true, ""
 	}
+	switch v := reflect.ValueOf(params[0]); v.Kind() {
+	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Ptr, reflect.Slice:
+		if v.IsNil() {
+			return true, ""
+		}
+	}
 	if msg == "" {
 		return false, fnPrefix("expected nil, but got %#v", params[0])
+	}
+	return false, msg
+}
+
+func NotNil(args ...interface{}) (ok bool, message string) {
+	params, msg, err := expectNArgs(1, args)
+	if err != "" {
+		return false, err
+	}
+	isNil, _ := IsNil(args...)
+	if !isNil {
+		return true, ""
+	}
+	if msg == "" {
+		return false, fnPrefix("expected non-nil, but got %#v", params[0])
 	}
 	return false, msg
 }
