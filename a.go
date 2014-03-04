@@ -75,12 +75,24 @@ func assert(fn string, args ...interface{}) (ok bool, message string) {
 	return true, ""
 }
 
-func expectNArgs(n int, args []interface{}) (params []interface{}, message string, err error) {
+var (
+	ErrNotEnoughArgs  = errors.New("ExpectNArgs: not enough arguments")
+	ErrTooManyArgs    = errors.New("ExpectNArgs: too many arguments")
+	ErrBadMessageType = errors.New("ExpectNArgs: last argument passed is not a string, error, or fmt.Stringer")
+)
+
+// ExpectNArgs is a helper function for writing custom CheckerFuncs which expect a fixed number of arguments.
+// It takes an expected number of arguments and the argument list with an optional message at the end. It
+// verifies that the argument list is of the correct length and coerces the optional message into a string
+// (accepting either a string, an error, or a fmt.Stringer). If there are any problems, ExpectNArgs returns
+// ErrNotEnoughArgs, ErrTooManyArgs, or ErrBadMessageType as appropriate. If err is nil, then len(params) is
+// equal to n.
+func ExpectNArgs(n int, args []interface{}) (params []interface{}, message string, err error) {
 	if len(args) < n {
-		return nil, "", errors.New(fnPrefix("not enough arguments"))
+		return nil, "", ErrNotEnoughArgs
 	}
 	if len(args) > n+1 {
-		return nil, "", errors.New(fnPrefix("too many arguments"))
+		return nil, "", ErrTooManyArgs
 	}
 	if len(args) == n+1 {
 		switch s := args[n].(type) {
@@ -91,11 +103,27 @@ func expectNArgs(n int, args []interface{}) (params []interface{}, message strin
 		case error:
 			message = s.Error()
 		default:
-			e := "last argument passed is not a string, error, or fmt.Stringer: %#v"
-			return nil, "", errors.New(fnPrefix(e, args[n]))
+			return nil, "", ErrBadMessageType
 		}
 	}
 	return args[:n], message, nil
+}
+
+func expectNArgs(n int, args []interface{}) (params []interface{}, message string, err error) {
+	params, message, err = ExpectNArgs(n, args)
+	switch err {
+	case nil:
+		return params, message, nil
+	case ErrNotEnoughArgs:
+		return nil, "", errors.New(fnPrefix("not enough arguments"))
+	case ErrTooManyArgs:
+		return nil, "", errors.New(fnPrefix("too many arguments"))
+	case ErrBadMessageType:
+		e := "last argument passed is not a string, error, or fmt.Stringer: %#v"
+		return nil, "", errors.New(fnPrefix(e, args[n]))
+	default:
+		return nil, "", err
+	}
 }
 
 func format(err string) string {
