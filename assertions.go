@@ -7,19 +7,6 @@ import (
 	"strings"
 )
 
-// Slices:
-// - Contains (slice contains values)
-// Maps:
-// - Contains (contains key/val pairs)
-// - ContainsKeys (map contains keys)
-// Numeric
-// - Lt
-// - Leq
-// - Gt
-// - Geq
-// - Approx (n within 0.1% of x)
-// - ApproxDelta (n equal to x +/- d)
-
 // DeepEquals is a checker which compares two values using reflect.DeepEquals.
 func DeepEquals(args ...interface{}) (ok bool, message string) {
 	params, msg, err := expectNArgs(2, args)
