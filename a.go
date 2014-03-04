@@ -83,16 +83,17 @@ func expectNArgs(n int, args []interface{}) (params []interface{}, message strin
 		return nil, "", errors.New(fnPrefix("too many arguments"))
 	}
 	if len(args) == n+1 {
-		s, ok := args[n].(string)
-		if !ok {
-			stringer, ok := args[n].(fmt.Stringer)
-			if !ok {
-				e := "last argument passed not a string or fmt.Stringer: %v"
-				return nil, "", errors.New(fnPrefix(e, args[n]))
-			}
-			s = stringer.String()
+		switch s := args[n].(type) {
+		case string:
+			message = s
+		case fmt.Stringer:
+			message = s.String()
+		case error:
+			message = s.Error()
+		default:
+			e := "last argument passed is not a string, error, or fmt.Stringer: %#v"
+			return nil, "", errors.New(fnPrefix(e, args[n]))
 		}
-		message = s
 	}
 	return args[:n], message, nil
 }
