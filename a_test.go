@@ -46,3 +46,25 @@ func TestBool(t *testing.T) {
 	a.Check(t, true, a.IsTrue)
 	a.Check(t, false, a.IsFalse)
 }
+
+func TestStringContains(t *testing.T) {
+	ok, _ := a.StringContains(1, "3")
+	a.Check(t, ok, a.IsFalse)
+	ok, _ = a.StringContains("3", 1)
+	a.Check(t, ok, a.IsFalse)
+	ok, _ = a.StringContains("foo", "bar")
+	a.Check(t, ok, a.IsFalse)
+	ok, _ = a.StringContains("foobar", "oba")
+	a.Check(t, ok, a.IsTrue)
+}
+
+func TestStringMatches(t *testing.T) {
+	ok, _ := a.StringMatches(1, "3")
+	a.Check(t, ok, a.IsFalse)
+	ok, _ = a.StringMatches("3", 1)
+	a.Check(t, ok, a.IsFalse)
+	ok, _ = a.StringMatches("foo", "bar")
+	a.Check(t, ok, a.IsFalse)
+	ok, _ = a.StringMatches("foobar", "o*[ab]{2}r")
+	a.Check(t, ok, a.IsTrue)
+}

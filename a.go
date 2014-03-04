@@ -29,6 +29,7 @@
 package a
 
 import (
+	"errors"
 	"fmt"
 	"path/filepath"
 	"runtime"
@@ -74,25 +75,26 @@ func assert(fn string, args ...interface{}) (ok bool, message string) {
 	return true, ""
 }
 
-func expectNArgs(n int, args []interface{}) (params []interface{}, message string, err string) {
+func expectNArgs(n int, args []interface{}) (params []interface{}, message string, err error) {
 	if len(args) < n {
-		return nil, "", fnPrefix("not enough arguments")
+		return nil, "", errors.New(fnPrefix("not enough arguments"))
 	}
 	if len(args) > n+1 {
-		return nil, "", fnPrefix("too many arguments")
+		return nil, "", errors.New(fnPrefix("too many arguments"))
 	}
 	if len(args) == n+1 {
 		s, ok := args[n].(string)
 		if !ok {
 			stringer, ok := args[n].(fmt.Stringer)
 			if !ok {
-				return nil, "", fnPrefix(fmt.Sprintf("last argument passed not a string or fmt.Stringer: %v", args[n]))
+				e := "last argument passed not a string or fmt.Stringer: %v"
+				return nil, "", errors.New(fnPrefix(e, args[n]))
 			}
 			s = stringer.String()
 		}
 		message = s
 	}
-	return args[:n], message, ""
+	return args[:n], message, nil
 }
 
 func format(err string) string {
