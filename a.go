@@ -4,9 +4,9 @@
 //
 //     a.Assert(t, foo, a.Equals, 5)
 //
-// where t is a *testing.T. Check may be substituted for Assert if the test should continue on failure. An
-// error message about expected vs. got will be automatically generated, but a custom error message may be
-// provided instead:
+// where t is a *testing.T (or a *testing.B). Check may be substituted for Assert if the test should continue
+// on failure. An error message about expected vs. got will be automatically generated, but a custom error
+// message may be provided instead:
 //
 //     a.Check(t, bar, a.IsNil, "bar was expected to be nil")
 //
@@ -39,14 +39,14 @@ import (
 )
 
 // Assert runs a check and aborts the test (calling t.Fatal) if it fails.
-func Assert(t *testing.T, args ...interface{}) {
+func Assert(t testing.TB, args ...interface{}) {
 	if ok, message := assert("Assert", args...); !ok {
 		t.Fatal(message)
 	}
 }
 
 // Check runs a check and registers an error (calling t.Error) if it fails.
-func Check(t *testing.T, args ...interface{}) {
+func Check(t testing.TB, args ...interface{}) {
 	if ok, message := assert("Check", args...); !ok {
 		t.Error(message)
 	}
@@ -65,7 +65,7 @@ func assert(fn string, args ...interface{}) (ok bool, message string) {
 	if !ok {
 		checker, ok = args[1].(CheckerFunc)
 		if !ok {
-			// Third argument because the first one is the *testing.T, not passed to assert.
+			// Third argument because the first one is the testing.TB, not passed to assert.
 			return false, fmt.Sprintf(format("a.%s: third argument not an a.CheckerFunc"), fn)
 		}
 	}
