@@ -1,3 +1,5 @@
+**NOTE: I neither use nor maintain this project anymore.**
+
 # a
 
 Package `a` is a Go assertions library for tests. It is very similar to [gocheck](http://labix.org/gocheck)'s
